@@ -27,34 +27,34 @@ export default function ProductCard({ product, onAddToCart, cart, updateQty }) {
       </div>
 
       {/* Content */}
-      <div className="p-4 flex flex-col flex-1 space-y-1.5">
-        
+      <div className="p-2.5 sm:p-4 flex flex-col flex-1 space-y-1 sm:space-y-1.5">
+
         {/* Category */}
-        <p className="text-[11px] text-gray-400 uppercase tracking-wide">
+        <p className="text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-wide">
           {product.category}
         </p>
 
         {/* Name */}
-        <h3 className="text-sm font-semibold text-black line-clamp-2 leading-snug">
+        <h3 className="text-xs sm:text-sm font-semibold text-black line-clamp-2 leading-snug">
           {product.name}
         </h3>
 
         {/* Brand */}
-        <p className="text-xs text-gray-500 capitalize">
+        <p className="text-[10px] sm:text-xs text-gray-500 capitalize">
           {product.brand}
         </p>
 
         {/* Bottom section */}
-        <div className="mt-auto pt-3 flex items-center justify-between">
-          
+        <div className="mt-auto pt-2 sm:pt-3 flex items-center justify-between gap-2">
+
           {/* Price */}
-          <span className="text-lg font-semibold text-black">
+          <span className="text-sm sm:text-lg font-semibold text-black">
             ₹{product.mrp}
           </span>
 
           {/* Button / Stepper */}
           {outOfStock ? (
-            <span className="text-xs text-gray-400 font-medium">Out of Stock</span>
+            <span className="text-[10px] sm:text-xs text-gray-400 font-medium">Out of Stock</span>
           ) : cartItem ? (
             <div
               onClick={(e) => e.stopPropagation()}
@@ -62,16 +62,16 @@ export default function ProductCard({ product, onAddToCart, cart, updateQty }) {
             >
               <button
                 onClick={(e) => { e.stopPropagation(); updateQty(product.id, -1); }}
-                className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 transition"
+                className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-sm sm:text-lg hover:bg-gray-100 transition"
               >
                 −
               </button>
-              <span className="w-7 text-center text-sm font-semibold">
+              <span className="w-5 sm:w-7 text-center text-xs sm:text-sm font-semibold">
                 {cartItem.qty}
               </span>
               <button
                 onClick={(e) => { e.stopPropagation(); updateQty(product.id, +1); }}
-                className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 transition"
+                className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-sm sm:text-lg hover:bg-gray-100 transition"
               >
                 +
               </button>
@@ -79,7 +79,7 @@ export default function ProductCard({ product, onAddToCart, cart, updateQty }) {
           ) : (
             <button
               onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-              className="text-sm px-4 py-1.5 rounded-md transition font-medium bg-black text-white hover:bg-gray-800"
+              className="text-xs sm:text-sm px-3 sm:px-4 py-1 sm:py-1.5 rounded-md transition font-medium bg-black text-white hover:bg-gray-800"
             >
               Add
             </button>

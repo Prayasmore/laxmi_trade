@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const SHOP_NUMBER = '919967103809';
+const SHOP_NUMBER = '917039942367';
 const STORAGE_KEY = 'laxmi_customer';
 const SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL;
 
