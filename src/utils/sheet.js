@@ -46,5 +46,8 @@ export async function fetchProducts() {
       brand: row.brand?.trim().toLowerCase() || '',
       mrp: parseFloat(row.mrp) || 0,
       stock: parseInt(row.stock, 10) || 0,
+      media: row.media?.trim()
+        ? row.media.split(',').map((url) => url.trim()).filter(Boolean)
+        : [row.image_url].filter(Boolean),
     }));
 }

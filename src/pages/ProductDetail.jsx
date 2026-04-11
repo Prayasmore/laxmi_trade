@@ -1,10 +1,20 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
-const PLACEHOLDER = 'https://placehold.co/600x600?text=No+Image';
+import { getOptimizedMedia, isVideo, PLACEHOLDER_IMAGE } from '../utils/cloudinary';
 
 export default function ProductDetail({ products, onAddToCart, loading, cart, updateQty }) {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const product = products.find((p) => String(p.id) === id);
+  const media = product?.media?.length ? product.media : [];
+
+  const [selectedMedia, setSelectedMedia] = useState(media[0] || '');
+
+  // Sync selection when product/media changes
+  useEffect(() => {
+    if (media.length) setSelectedMedia(media[0]);
+  }, [product?.id]);
 
   if (loading) {
     return (
@@ -13,8 +23,6 @@ export default function ProductDetail({ products, onAddToCart, loading, cart, up
       </div>
     );
   }
-
-  const product = products.find((p) => String(p.id) === id);
 
   if (!product) {
     return (
@@ -48,17 +56,73 @@ export default function ProductDetail({ products, onAddToCart, loading, cart, up
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-10">
-        {/* Image */}
-        <div className="bg-white rounded-xl overflow-hidden aspect-[4/3] md:aspect-square shadow-sm max-h-[300px] md:max-h-none">
-          <img
-            src={product.image_url || PLACEHOLDER}
-            alt={product.name}
-            className="w-full h-full object-contain"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = PLACEHOLDER;
-            }}
-          />
+        {/* Media Section — mobile: column (main + thumbnails below), desktop: row (thumbnails left + main right) */}
+        <div className="flex flex-col-reverse md:flex-row gap-3">
+          {/* Thumbnail Gallery — only show if more than 1 media item */}
+          {media.length > 1 && (
+            <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:overflow-x-hidden md:max-h-[400px] scrollbar-hide pb-1 md:pb-0 md:pr-1">
+              {media.map((url, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedMedia(url)}
+                  className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${
+                    selectedMedia === url
+                      ? 'border-black'
+                      : 'border-gray-200 hover:border-gray-400'
+                  }`}
+                >
+                  {isVideo(url) ? (
+                    <>
+                      <video
+                        src={getOptimizedMedia(url)}
+                        muted
+                        preload="metadata"
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Play icon overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </>
+                  ) : (
+                    <img
+                      src={getOptimizedMedia(url, 'thumb')}
+                      alt={`${product.name} ${i + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = PLACEHOLDER_IMAGE;
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Main Display */}
+          <div className="flex-1 bg-gray-100 rounded-xl overflow-hidden shadow-sm max-h-[400px] flex items-center justify-center">
+            {isVideo(selectedMedia) ? (
+              <video
+                key={selectedMedia}
+                src={getOptimizedMedia(selectedMedia)}
+                controls
+                className="w-full h-full max-h-[400px] object-contain"
+              />
+            ) : (
+              <img
+                src={selectedMedia ? getOptimizedMedia(selectedMedia, 'pdp') : PLACEHOLDER_IMAGE}
+                alt={product.name}
+                className="w-full h-full max-h-[400px] object-contain"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = PLACEHOLDER_IMAGE;
+                }}
+              />
+            )}
+          </div>
         </div>
 
         {/* Details */}

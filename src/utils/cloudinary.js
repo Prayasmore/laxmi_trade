@@ -4,72 +4,87 @@
 export const PLACEHOLDER_IMAGE = 'https://placehold.co/600x600?text=No+Image';
 
 /**
- * Size configuration for different image contexts
+ * Returns true if the URL points to a video file
  */
-const SIZE_CONFIGS = {
-  grid: 'w_400,h_400',
-  pdp: 'w_600,h_600',
-  cart: 'w_100,h_100',
+export const isVideo = (url) => /\.(mp4|webm|ogg)$/i.test(url);
+
+/**
+ * Returns true if the URL is a Cloudinary URL
+ */
+export const isCloudinaryUrl = (url) => {
+  return url?.includes('res.cloudinary.com');
 };
 
 /**
- * Optimizes Cloudinary image URLs with automatic transformations
+ * Injects transformations into a Cloudinary URL after "/upload/"
+ * Non-Cloudinary URLs are returned unchanged.
+ */
+const transformCloudinaryUrl = (url, transformations) => {
+  if (!isCloudinaryUrl(url)) return url;
+  return url.replace('/upload/', `/upload/${transformations}/`);
+};
+
+/**
+ * Optimizes Cloudinary image URLs with context-specific transformations
  *
- * @param {string} url - Original Cloudinary image URL
- * @param {string} size - Image size context: "grid", "pdp", or "cart"
- * @returns {string} Optimized Cloudinary URL with transformations
+ * @param {string} url - Original image URL
+ * @param {string} type - Image context: "grid", "pdp", or "thumb"
+ * @returns {string} Optimized URL (or original if not Cloudinary)
  *
  * @example
- * // Product grid image
- * <img src={getOptimizedImage(product.image_url, "grid")} alt={product.name} />
- *
- * // Product detail page image
- * <img src={getOptimizedImage(product.image_url, "pdp")} alt={product.name} />
- *
- * // Cart thumbnail
- * <img src={getOptimizedImage(product.image_url, "cart")} alt={product.name} />
+ * <img src={getOptimizedImage(product.image_url, "grid")} />
+ * <img src={getOptimizedImage(product.image_url, "pdp")} />
+ * <img src={getOptimizedImage(product.image_url, "thumb")} />
  */
-export function getOptimizedImage(url, size = 'grid') {
-  // Handle empty, null, or non-string URLs
+export function getOptimizedImage(url, type = 'grid') {
   if (!url || typeof url !== 'string' || url.trim() === '') {
     return PLACEHOLDER_IMAGE;
   }
 
-  // If URL is not from Cloudinary, return original URL
-  if (!url.includes('cloudinary.com')) {
-    return url;
-  }
+  const transformationsMap = {
+    grid: 'f_auto,q_auto,w_400,h_400,c_pad,b_white',
+    pdp: 'f_auto,q_auto,w_800,h_800,c_fit',
+    thumb: 'f_auto,q_auto,w_100,h_100,c_fill',
+  };
 
-  // Get size configuration (default to grid if invalid size)
-  const sizeConfig = SIZE_CONFIGS[size] || SIZE_CONFIGS.grid;
-
-  // Build transformations string
-  // - Size config (w_400,h_400, etc.)
-  // - c_fill: Crop to fill the specified dimensions
-  // - q_auto: Automatic quality optimization
-  // - f_auto: Automatic format selection (WebP, AVIF, etc.)
-  const transformations = `${sizeConfig},c_fill,q_auto,f_auto`;
-
-  // Insert transformations after "/upload/"
-  const optimizedUrl = url.replace('/upload/', `/upload/${transformations}/`);
-
-  return optimizedUrl;
+  const transformations = transformationsMap[type] || transformationsMap.grid;
+  return transformCloudinaryUrl(url, transformations);
 }
 
 /**
- * Batch optimize multiple image URLs
+ * Optimizes Cloudinary video URLs
  *
- * @param {Array} images - Array of image objects with url and size properties
- * @returns {Array} Array of optimized image URLs
+ * @param {string} url - Original video URL
+ * @returns {string} Optimized video URL (or original if not Cloudinary)
+ */
+export function getOptimizedVideo(url) {
+  if (!url || typeof url !== 'string' || url.trim() === '') {
+    return '';
+  }
+
+  return transformCloudinaryUrl(url, 'f_auto,q_auto,w_720');
+}
+
+/**
+ * Unified media optimizer — detects image vs video and applies
+ * the correct transformations automatically.
+ *
+ * @param {string} url - Original media URL
+ * @param {string} type - Context: "grid", "pdp", or "thumb" (ignored for videos)
+ * @returns {string} Optimized URL
  *
  * @example
- * const optimized = getOptimizedImages([
- *   { url: "...", size: "grid" },
- *   { url: "...", size: "pdp" }
- * ]);
+ * <img src={getOptimizedMedia(url, "grid")} />
+ * <video src={getOptimizedMedia(videoUrl)} />
  */
-export function getOptimizedImages(images = []) {
-  return images.map(({ url, size = 'grid' }) =>
-    getOptimizedImage(url, size)
-  );
+export function getOptimizedMedia(url, type = 'grid') {
+  if (!url || typeof url !== 'string' || url.trim() === '') {
+    return '';
+  }
+
+  if (isVideo(url)) {
+    return getOptimizedVideo(url);
+  }
+
+  return getOptimizedImage(url, type);
 }

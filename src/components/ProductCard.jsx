@@ -1,27 +1,35 @@
 import { useNavigate } from 'react-router-dom';
+import { getOptimizedMedia, isVideo, PLACEHOLDER_IMAGE } from '../utils/cloudinary';
 
-const PLACEHOLDER = 'https://placehold.co/200x200?text=No+Image';
+function getThumbnail(product) {
+  if (product.media?.length) {
+    const first = product.media[0];
+    return isVideo(first) ? product.image_url : first;
+  }
+  return product.image_url;
+}
 
 export default function ProductCard({ product, onAddToCart, cart, updateQty }) {
   const outOfStock = product.stock === 0;
   const navigate = useNavigate();
   const cartItem = cart?.[product.id];
+  const thumbnail = getThumbnail(product);
 
   return (
     <div
       onClick={() => navigate(`/product/${product.id}`)}
       className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition overflow-hidden flex flex-col cursor-pointer"
     >
-      
+
       {/* Image */}
       <div className="aspect-square bg-white overflow-hidden">
         <img
-          src={product.image_url || PLACEHOLDER}
+          src={thumbnail ? getOptimizedMedia(thumbnail, 'grid') : PLACEHOLDER_IMAGE}
           alt={product.name}
           className="w-full h-full object-contain"
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = PLACEHOLDER;
+            e.target.src = PLACEHOLDER_IMAGE;
           }}
         />
       </div>
