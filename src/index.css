@@ -1,5 +1,49 @@
 @import "tailwindcss";
 
+/* Brand palette + type — single source of truth.
+   Exposes utilities like bg-brand, text-brand, font-display, font-sans. */
+@theme {
+  --color-brand: #ffff00;
+  --color-brand-soft: #fff28a;
+  --color-ink: #0a0a0a;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Base typography + rendering defaults */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color: var(--color-ink);
+}
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Brand-tinted text selection */
+::selection {
+  background: var(--color-brand);
+  color: #000;
+}
+
+/* Subtle dotted-paper background — evokes dotted/graph notebooks.
+   Warm off-white base + faint dot grid + a soft brand wash up top. */
+.bg-paper {
+  background-color: #fafaf8;
+  background-image:
+    radial-gradient(60rem 30rem at 80% -10%, rgba(255, 255, 0, 0.10), transparent 70%),
+    radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.055) 1px, transparent 0);
+  background-size: 100% 100%, 22px 22px;
+  background-attachment: fixed, scroll;
+}
+
 /* Hide scrollbar but keep scroll functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -7,4 +51,32 @@
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Skeleton shimmer for loading states */
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #eee;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+/* Respect reduced-motion users */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

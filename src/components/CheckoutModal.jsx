@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 const SHOP_NUMBER = '917039942367';
 const STORAGE_KEY = 'laxmi_customer';
@@ -124,79 +125,111 @@ export default function CheckoutModal({ cart, onClose, onClearCart }) {
     onClose();
   }
 
+  const inputBase =
+    "w-full border rounded-xl px-3.5 py-2.5 text-sm transition focus:outline-none focus:ring-2 focus:ring-brand/60 focus:border-gray-400";
+
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
 
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b">
-          <h2 className="text-base font-bold">Checkout Details</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
+        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+          <h2 className="text-lg font-bold font-display">Checkout Details</h2>
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 text-2xl leading-none transition"
+            aria-label="Close"
+          >
             &times;
           </button>
         </div>
 
         <form onSubmit={handlePlaceOrder} className="px-5 py-4 space-y-4">
           {/* Name */}
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Full Name"
-            className="w-full border px-3 py-2 rounded-md"
-          />
-          {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-gray-600">Full Name</label>
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="e.g. Priya Sharma"
+              className={`${inputBase} ${errors.name ? 'border-red-400' : 'border-gray-300'}`}
+            />
+            {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+          </div>
 
           {/* Phone */}
-          <input
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="Phone Number"
-            maxLength={10}
-            className="w-full border px-3 py-2 rounded-md"
-          />
-          {errors.phone && <p className="text-xs text-red-500">{errors.phone}</p>}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-gray-600">Phone Number</label>
+            <input
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              placeholder="10-digit mobile number"
+              inputMode="numeric"
+              maxLength={10}
+              className={`${inputBase} ${errors.phone ? 'border-red-400' : 'border-gray-300'}`}
+            />
+            {errors.phone && <p className="text-xs text-red-500">{errors.phone}</p>}
+          </div>
 
           {/* Address */}
-          <textarea
-            name="address"
-            value={form.address}
-            onChange={handleChange}
-            placeholder="Address"
-            className="w-full border px-3 py-2 rounded-md"
-          />
-          {errors.address && <p className="text-xs text-red-500">{errors.address}</p>}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-gray-600">Delivery Address</label>
+            <textarea
+              name="address"
+              value={form.address}
+              onChange={handleChange}
+              placeholder="House / street / area, city"
+              rows={3}
+              className={`${inputBase} resize-none ${errors.address ? 'border-red-400' : 'border-gray-300'}`}
+            />
+            {errors.address && <p className="text-xs text-red-500">{errors.address}</p>}
+          </div>
 
           {/* Summary */}
-          <div className="bg-gray-50 p-3 rounded-md text-sm">
+          <div className="bg-gray-50 border border-gray-100 p-4 rounded-xl text-sm space-y-1.5">
             {items.map(({ product, qty }) => (
-              <div key={product.id} className="flex justify-between">
-                <span>{product.name} × {qty}</span>
-                <span>₹{(product.mrp * qty).toFixed(2)}</span>
+              <div key={product.id} className="flex justify-between gap-2 text-gray-600">
+                <span className="truncate">{product.name} × {qty}</span>
+                <span className="shrink-0 font-medium text-gray-800">₹{(product.mrp * qty).toFixed(2)}</span>
               </div>
             ))}
-            <div className="font-bold flex justify-between mt-2 border-t pt-2">
+            <div className="font-bold flex justify-between mt-2 border-t border-gray-200 pt-2.5 text-base">
               <span>Total</span>
               <span>₹{total.toFixed(2)}</span>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3">
-            <button type="button" onClick={onClose} className="flex-1 border py-2 rounded">
+          <div className="flex gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 border border-gray-300 py-2.5 rounded-full font-semibold text-sm hover:bg-gray-50 active:scale-95 transition"
+            >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-green-600 text-white py-2 rounded"
+              className="flex-1 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white py-2.5 rounded-full font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-lg active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {loading ? "Processing..." : "Order via WhatsApp"}
+              {loading ? "Processing…" : <><span>Order via WhatsApp</span><span>📲</span></>}
             </button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,3 +1,12 @@
+import { motion } from 'framer-motion';
+
+const reveal = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' },
+  transition: { duration: 0.5, ease: 'easeOut' },
+};
+
 export default function About() {
   const testimonials = [
     {
@@ -45,20 +54,26 @@ export default function About() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-yellow-300 to-yellow-200 py-12 sm:py-16">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-black mb-2">
+      <section className="relative bg-brand py-14 sm:py-20 overflow-hidden">
+        <div aria-hidden className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_1px_1px,#000_1px,transparent_0)] [background-size:22px_22px]" />
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="relative max-w-6xl mx-auto px-4 text-center"
+        >
+          <h1 className="text-4xl sm:text-6xl font-extrabold font-display text-black mb-3 tracking-tight">
             About Laxmi Trade
           </h1>
-          <p className="text-lg text-gray-700">Your trusted local stationery destination</p>
-        </div>
+          <p className="text-base sm:text-lg text-black/70 font-medium">Your trusted local stationery destination</p>
+        </motion.div>
       </section>
 
       {/* Shop Introduction */}
       <section className="py-12 sm:py-16 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-50 rounded-lg p-8 sm:p-10 border border-gray-200 shadow-sm">
-            <h2 className="text-3xl font-bold text-black mb-6">Welcome to Laxmi Trade</h2>
+          <motion.div {...reveal} className="bg-gray-50 rounded-2xl p-8 sm:p-10 border border-gray-200 shadow-sm">
+            <h2 className="text-3xl font-bold font-display text-black mb-6">Welcome to Laxmi Trade</h2>
             <div className="space-y-4 text-gray-700 leading-relaxed">
               <p>
                 Laxmi Trade is your one-stop shop for premium stationery and office supplies in the heart of our community. 
@@ -81,7 +96,7 @@ export default function About() {
                 choice for stationery lovers in the area!
               </p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -94,17 +109,24 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((review) => (
-              <div
+            {testimonials.map((review, i) => (
+              <motion.div
                 key={review.id}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-gray-200"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.45, ease: 'easeOut', delay: Math.min(i * 0.08, 0.4) }}
+                className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-200"
               >
                 <StarRating rating={review.rating} />
                 <p className="text-gray-700 mt-4 mb-4 leading-relaxed">{review.text}</p>
-                <div className="border-t pt-3">
+                <div className="border-t border-gray-100 pt-3 flex items-center gap-2.5">
+                  <span className="w-8 h-8 rounded-full bg-brand text-black text-sm font-bold flex items-center justify-center font-display">
+                    {review.name.charAt(0)}
+                  </span>
                   <p className="font-semibold text-black">{review.name}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -150,9 +172,10 @@ export default function About() {
           <p className="text-gray-300 mb-8">Browse our collection and find everything you need for your stationery needs.</p>
           <a
             href="/"
-            className="inline-block bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 px-8 rounded-md transition"
+            className="inline-flex items-center gap-2 bg-brand text-black font-bold py-3.5 px-9 rounded-full transition-all duration-200 hover:shadow-[0_8px_24px_-6px_rgba(255,255,0,0.6)] hover:-translate-y-0.5 active:scale-95"
           >
             Shop Now
+            <span aria-hidden>→</span>
           </a>
         </div>
       </section>

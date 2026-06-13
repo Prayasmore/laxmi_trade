@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { getOptimizedMedia, isVideo, PLACEHOLDER_IMAGE } from '../utils/cloudinary';
 
 export default function ProductDetail({ products, onAddToCart, loading, cart, updateQty }) {
@@ -60,15 +61,15 @@ export default function ProductDetail({ products, onAddToCart, loading, cart, up
         <div className="flex flex-col-reverse md:flex-row gap-3">
           {/* Thumbnail Gallery — only show if more than 1 media item */}
           {media.length > 1 && (
-            <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:overflow-x-hidden md:max-h-[400px] scrollbar-hide pb-1 md:pb-0 md:pr-1">
+            <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:overflow-x-hidden md:max-h-[440px] scrollbar-hide pb-1 md:pb-0 md:pr-1">
               {media.map((url, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedMedia(url)}
-                  className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${
+                  className={`relative flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 ${
                     selectedMedia === url
-                      ? 'border-black'
-                      : 'border-gray-200 hover:border-gray-400'
+                      ? 'border-black ring-2 ring-brand ring-offset-1'
+                      : 'border-gray-200 hover:border-gray-400 opacity-80 hover:opacity-100'
                   }`}
                 >
                   {isVideo(url) ? (
@@ -103,19 +104,19 @@ export default function ProductDetail({ products, onAddToCart, loading, cart, up
           )}
 
           {/* Main Display */}
-          <div className="flex-1 bg-gray-100 rounded-xl overflow-hidden shadow-sm max-h-[400px] flex items-center justify-center">
+          <div className="group flex-1 bg-gradient-to-b from-gray-50 to-gray-100 rounded-2xl overflow-hidden border border-gray-200/70 shadow-sm max-h-[440px] flex items-center justify-center">
             {isVideo(selectedMedia) ? (
               <video
                 key={selectedMedia}
                 src={getOptimizedMedia(selectedMedia)}
                 controls
-                className="w-full h-full max-h-[400px] object-contain"
+                className="w-full h-full max-h-[440px] object-contain"
               />
             ) : (
               <img
                 src={selectedMedia ? getOptimizedMedia(selectedMedia, 'pdp') : PLACEHOLDER_IMAGE}
                 alt={product.name}
-                className="w-full h-full max-h-[400px] object-contain"
+                className="w-full h-full max-h-[440px] object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-105"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = PLACEHOLDER_IMAGE;
@@ -126,38 +127,47 @@ export default function ProductDetail({ products, onAddToCart, loading, cart, up
         </div>
 
         {/* Details */}
-        <div className="flex flex-col gap-2 md:gap-4">
-          <p className="text-xs text-gray-400 uppercase tracking-wide">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="flex flex-col gap-2 md:gap-4"
+        >
+          <p className="text-xs text-gray-400 uppercase tracking-[0.08em] font-medium">
             {product.category}
           </p>
 
-          <h1 className="text-xl md:text-2xl font-bold leading-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold font-display leading-tight">
             {product.name}
           </h1>
 
           {product.brand && (
             <p className="text-sm text-gray-500 capitalize">
-              Brand: {product.brand}
+              Brand: <span className="font-medium text-gray-700">{product.brand}</span>
             </p>
           )}
 
-          <p className="text-2xl font-bold text-black">
-            ₹{product.mrp}
-          </p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-extrabold font-display text-black tracking-tight">
+              ₹{product.mrp}
+            </span>
+            <span className="text-xs text-gray-400">incl. taxes</span>
+          </div>
 
-          <p className="text-sm text-gray-500 leading-relaxed">
+          <p className="text-sm text-gray-600 leading-relaxed">
             {product.description ||
               'High-quality stationery product. Perfect for daily use.'}
           </p>
 
           {/* Stock */}
-          <p
-            className={`text-sm font-medium ${
-              outOfStock ? 'text-red-500' : 'text-green-600'
+          <span
+            className={`inline-flex w-fit items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full ${
+              outOfStock ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'
             }`}
           >
-            {outOfStock ? 'Out of stock' : `✓ In stock (${product.stock})`}
-          </p>
+            <span className={`w-1.5 h-1.5 rounded-full ${outOfStock ? 'bg-red-500' : 'bg-green-500'}`} />
+            {outOfStock ? 'Out of stock' : `In stock · ${product.stock} available`}
+          </span>
 
           {/* Cart action */}
           {(() => {
@@ -174,19 +184,19 @@ export default function ProductDetail({ products, onAddToCart, loading, cart, up
             }
             if (cartItem) {
               return (
-                <div className="mt-2 flex items-center border border-gray-300 rounded-md overflow-hidden w-fit">
+                <div className="mt-2 flex items-center border border-gray-300 rounded-full overflow-hidden w-fit">
                   <button
                     onClick={() => updateQty(product.id, -1)}
-                    className="w-11 h-11 flex items-center justify-center text-xl font-medium hover:bg-gray-100 transition"
+                    className="w-11 h-11 flex items-center justify-center text-xl font-medium hover:bg-gray-100 active:scale-90 transition"
                   >
                     −
                   </button>
-                  <span className="w-12 text-center text-base font-semibold">
+                  <span className="w-12 text-center text-base font-semibold tabular-nums">
                     {cartItem.qty}
                   </span>
                   <button
                     onClick={() => updateQty(product.id, +1)}
-                    className="w-11 h-11 flex items-center justify-center text-xl font-medium hover:bg-gray-100 transition"
+                    className="w-11 h-11 flex items-center justify-center text-xl font-medium hover:bg-gray-100 active:scale-90 transition"
                   >
                     +
                   </button>
@@ -196,13 +206,13 @@ export default function ProductDetail({ products, onAddToCart, loading, cart, up
             return (
               <button
                 onClick={() => onAddToCart(product)}
-                className="mt-2 w-full min-h-[42px] py-2.5 rounded-md font-semibold text-sm bg-black text-white hover:bg-gray-800 transition"
+                className="mt-2 w-full min-h-[48px] py-3 rounded-full font-semibold text-sm bg-black text-white transition-all duration-200 hover:bg-gray-800 hover:shadow-lg active:scale-[0.98]"
               >
                 Add to Cart
               </button>
             );
           })()}
-        </div>
+        </motion.div>
       </div>
     </div>
   );
